@@ -90,33 +90,24 @@ fun geraDados():ArrayList<Produto>{
 }
 
 @Composable
-fun SearchBar(produtos: List<Produto>, modifier: Modifier){
-    var searchText by remember { mutableStateOf("") }
+fun SeachBar(produtos: List<Produto>, modifier: Modifier){
+
+    var textSearch by remember { mutableStateOf("") }
 
     OutlinedTextField(
-        value = searchText,
+        value = textSearch,
         onValueChange = {
-            searchText = it
+            textSearch = it
         },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
-            )
-        },
-        label = {
-            Text(text = "Search")
-        },
-        modifier = modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
-    )
-    var products = produtos
-    if (!searchText.equals("")) {
-        products = produtos.filter { produto ->
-            produto.nome.contains(searchText, ignoreCase = true)
-        }
-
-    }
-    ListaDeProdutosPorColuna(products, modifier)
+        modifier = modifier.height(56.dp).fillMaxSize().padding(start = 16.dp, end = 16.dp),
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        placeholder = {
+            Text(text = "Pesquisar")
+        })
+    var produtos = produtos
+    if (!textSearch.equals(""))
+        produtos = produtos.filter { it.nome.contains(textSearch, ignoreCase = true) }
+    ListaDeProdutosPorColuna(produtos, modifier)
 
 }
 
@@ -126,7 +117,7 @@ fun ListaDeProdutosPorColuna(produtos: List<Produto>, modifier: Modifier) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 56.dp, start = 16.dp, bottom = 56.dp)
+            .padding(top = 56.dp, start = 16.dp)
     ) {
         items(produtos) { produto ->
             ItemProduto(produto)
@@ -164,3 +155,31 @@ fun ListaDeProdutosPorColunaPreview(){
     ListaDeProdutosPorColuna(geraDados(), modifier = Modifier)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(){
+    var textSearch by remember { mutableStateOf("") }
+
+    Scaffold (
+        bottomBar = {
+            BottomAppBar(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = "Copyright PDM/TSI",
+                )
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { }) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        }
+    ){
+        innerPadding ->  SeachBar(geraDados(), Modifier.padding(innerPadding))
+    }
+}
