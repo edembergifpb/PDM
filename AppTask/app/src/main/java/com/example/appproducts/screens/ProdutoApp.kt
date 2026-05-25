@@ -89,7 +89,7 @@ fun ProdutoApp() {
                     scope.launch {
                         repo.remover(produto)
                         listaProdutos = repo.listarProdutos()
-                        mensagem="Produto removido com sucesso!"
+                        mensagem = "Produto removido com sucesso!"
                     }
                 }
             }

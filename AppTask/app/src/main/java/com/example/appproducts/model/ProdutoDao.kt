@@ -45,4 +45,19 @@ class ProdutoDao {
             }.await()
     }
 
+    suspend fun getProdutoById(id: String):Produto? {
+        var produto:Produto? = null
+        db.collection("produtos")
+            .document(id)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.exists())
+                    produto = result.toObject<Produto>()
+            }
+            .addOnFailureListener { e ->
+                println("Erro ao buscar o produto {id}: $e")
+            }.await()
+        return produto
+    }
+
 }
