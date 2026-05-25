@@ -9,55 +9,69 @@ import kotlinx.coroutines.tasks.await
 class ProdutoDao {
     private val db = FirebaseFirestore.getInstance()
 
-    suspend fun adicionarProduto(produto: Produto) {
-        db.collection("produtos")
-            .add(produto)
-            .addOnSuccessListener {
-                println("Produto adicionado com sucesso!")
-            }
-            .addOnFailureListener { e ->
-                println("Erro ao adicionar produto: $e")
-            }.await()
+    suspend fun adicionarProduto(produto: Produto):String? {
+        return try {
+            val result = db.collection("produtos")
+                .add(produto)
+                .await()
+
+            println("Produto adicionado com sucesso!")
+
+            result.id
+
+        } catch (e: Exception) {
+            println("Erro ao adicionar produto: $e")
+            null
+        }
     }
 
     suspend fun listarProdutos(): List<Produto> {
-        var produtos: List<Produto> = ArrayList<Produto>()
-        db.collection("produtos")
-            .get()
-            .addOnSuccessListener { result ->
-                produtos = result.toObjects<Produto>()
-            }
-            .addOnFailureListener { e ->
-                println("Erro ao listar produtos: $e")
-            }.await()
-        return produtos
+        return try {
+            val result = db.collection("produtos")
+                .get()
+                .await()
+
+            result.toObjects<Produto>()
+
+        } catch (e: Exception) {
+            println("Erro ao listar produtos: $e")
+            emptyList()
+        }
     }
 
-    suspend fun remover(produto: Produto) {
-        db.collection("produtos")
-            .document(produto.id)
-            .delete()
-            .addOnSuccessListener { result ->
-                println("Produto adicionado com sucesso!")
-            }
-            .addOnFailureListener { e ->
-                println("Erro ao remover o produtos {produto.toString()}: $e")
-            }.await()
+    suspend fun remover(produto: Produto):Produto? {
+        return try {
+
+            db.collection("produtos")
+                .document(produto.id)
+                .delete()
+                .await()
+
+            produto
+
+        } catch (e: Exception) {
+            println("Erro ao remover o produto ${produto}: $e")
+            null
+        }
     }
 
     suspend fun getProdutoById(id: String):Produto? {
-        var produto:Produto? = null
-        db.collection("produtos")
-            .document(id)
-            .get()
-            .addOnSuccessListener { result ->
-                if (result.exists())
-                    produto = result.toObject<Produto>()
+        return try {
+            val result = db.collection("produtos")
+                .document(id)
+                .get()
+                .await()
+
+            if (result.exists()) {
+                result.toObject<Produto>()
+            } else {
+                null
             }
-            .addOnFailureListener { e ->
-                println("Erro ao buscar o produto {id}: $e")
-            }.await()
-        return produto
+
+        } catch (e: Exception) {
+            println("Erro ao buscar o produto $id: $e")
+            null
+        }
     }
 
 }
